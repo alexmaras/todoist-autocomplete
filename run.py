@@ -1,6 +1,7 @@
 import os
 import todoist
 import pytz
+from string import Template
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -26,6 +27,20 @@ def main():
     autocomplete_label_id = find_autocomplete_label(api.state["labels"], os.getenv("AUTOCOMPLETE_LABEL"))
     autocomplete_items = find_autocomplete_items(api.state["items"], autocomplete_label_id)
     overdue_items = find_overdue_items(autocomplete_items, os.getenv("OVERDUE_HOURS_LIMIT"), os.getenv("LOCAL_TIMEZONE"))
+
+    number_of_items_template = Template("Found $number overdue item${is_plural}")
+    print(
+        number_of_items_template.substitute(
+            number = len(overdue_items),
+            is_plural = "s" if len(overdue_items) > 1 else ""
+        )
+    )
+
+    for item in overdue_items:
+        api.items.complete(item["id"])
+
+    api.commit()
+    print("Items completed")
 
 def check_required_env():
     get_env_vars = lambda required_env: os.getenv(required_env)
