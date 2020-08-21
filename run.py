@@ -32,7 +32,7 @@ def main():
     print(
         number_of_items_template.substitute(
             number = len(overdue_items),
-            is_plural = "s" if len(overdue_items) > 1 else ""
+            is_plural = "" if len(overdue_items) == 1 else "s"
         )
     )
 
